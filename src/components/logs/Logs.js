@@ -1,28 +1,19 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
+import { connect }  from 'react-redux';
 import LogItem from './LogItem'
 import Preloader from '../layout/Preloader'
+import PropTypes from 'prop-types'
+import { getLogs } from '../../actions/logActions'
 
-
-const Logs = () => {
-    const [logs, setLogs] = useState([]);
-    const [loading, setLoading] = useState([false]);
-
+//app level state
+const Logs = ({ log: {logs, loading}, getLogs }) => {
+    
     useEffect(() => {
         getLogs();
         //eslint-disable-next-line
     }, [])
 
-    const getLogs = async () => {
-        setLoading(true);
-        const res = await fetch('/logs');
-        const data = await res.json();
-
-        setLogs(data);
-        setLoading(false);
-
-    }
-
-    if(loading) {
+    if(loading || logs === null ) {
         return <Preloader />;
     }
 
@@ -39,4 +30,27 @@ const Logs = () => {
     )
 }
 
-export default Logs
+Logs.propTypes= {
+    log: PropTypes.object.isRequired,
+    getLogs: PropTypes.func.isRequired
+}
+
+// Map anything in app level state to a local prop
+const mapStateToProps = state => ({
+    log: state.log
+})
+
+
+export default connect(
+    mapStateToProps, 
+    {getLogs}
+    )(Logs)
+
+
+//Using Redux in a component
+
+//1)import connect
+//2)export connect at end
+//3)map state to props. bring in all or some state
+// 4) if action, import it at top & Add it as a second parameter for map state to props.
+//5. Action & state are both props. You can destruc at top so no need to use props.___
